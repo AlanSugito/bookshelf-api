@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 /* eslint-disable eqeqeq */
-const { query } = require('@hapi/hapi/lib/validation');
+const query = require('./query');
 const books = require('./books');
 
 const addBookHandler = (req, h) => {
@@ -48,7 +48,8 @@ const addBookHandler = (req, h) => {
   if (readPage > pageCount) {
     const response = h.response({
       status: 'fail',
-      message: 'Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount',
+      message:
+        'Gagal menambahkan buku. readPage tidak boleh lebih besar dari pageCount',
     });
 
     response.code(400);
@@ -83,20 +84,24 @@ const addBookHandler = (req, h) => {
 
 const getBooksHandler = (req, h) => {
   const { name, reading, finished } = req.query;
-  const filteredBooksByName = books.filter((book) => book.name === name);
-  const filteredBooksByReading = books.filter((book) => book.reading === (reading === 1));
-  const filteredBooksByFinished = books.filter((book) => book.finished === (reading === 1));
 
   if (name !== undefined) {
-    query(filteredBooksByName, h);
+    const filteredBooksByName = books.filter((book) => book.name.toLowerCase().includes(name.toLowerCase()));
+    return query(filteredBooksByName, h);
   }
 
   if (reading !== undefined) {
-    query(filteredBooksByReading, h);
+    const filteredBooksByReading = books.filter(
+      (book) => book.reading === (Number(reading) === 1),
+    );
+    return query(filteredBooksByReading, h);
   }
 
   if (finished !== undefined) {
-    query(filteredBooksByFinished, h);
+    const filteredBooksByFinished = books.filter(
+      (book) => book.finished === (Number(finished) === 1),
+    );
+    return query(filteredBooksByFinished, h);
   }
 
   const data = books.map((book) => ({
@@ -159,7 +164,8 @@ const updateBookById = (req, h) => {
   if (readPage > pageCount) {
     const response = h.response({
       status: 'fail',
-      message: 'Gagal memperbarui buku. readPage tidak boleh lebih besar dari pageCount',
+      message:
+        'Gagal memperbarui buku. readPage tidak boleh lebih besar dari pageCount',
     });
 
     response.code(400);
@@ -216,5 +222,9 @@ const deleteBookById = (req, h) => {
 };
 
 module.exports = {
-  addBookHandler, getBooksHandler, getBooksById, updateBookById, deleteBookById,
+  addBookHandler,
+  getBooksHandler,
+  getBooksById,
+  updateBookById,
+  deleteBookById,
 };
